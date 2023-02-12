@@ -1,2 +1,2 @@
 run :
-	nodemon --exec go run main.go --signal SIGTERM
+	gomon --exec go run main.go --signal SIGTERM
