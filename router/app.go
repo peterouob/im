@@ -21,5 +21,6 @@ func Router() *gin.Engine {
 
 	//發送消息
 	r.GET("/user/sendMessage", service.SendMessage)
+	r.GET("/user/sendUserMessage", service.SendUserMessage) //死鎖問題！
 	return r
 }
