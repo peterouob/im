@@ -10,9 +10,15 @@ import (
 
 func Router() *gin.Engine {
 	r := gin.Default()
+	//swagger
 	docs.SwaggerInfo.BasePath = ""
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-	r.GET("/index", service.GetIndex)
+	//靜態資源
+	r.Static("/assets", "assets/")
+	r.LoadHTMLGlob("views/**/*.html")
+	//首頁
+	r.GET("/", service.GetIndex)
+	//用戶模塊
 	r.GET("/user/getUserList", service.GetUserList)
 	r.GET("/user/createUser", service.CreateUser)
 	r.GET("/user/deleteUser", service.DeleteUser)

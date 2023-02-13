@@ -121,12 +121,16 @@ func UpdateUser(c *gin.Context) {
 // @Router /user/findUserByNameAndPwd [post]
 func FindUserByNameAndPwd(c *gin.Context) {
 	data := models.UserBasic{}
-	name := c.PostForm("name")
-	password := c.PostForm("password")
-
+	//name := c.Request.FormValue("name")
+	//password := c.Request.FormValue("password")
+	if err := c.ShouldBindJSON(&data); err != nil {
+		fmt.Println(err)
+	}
+	name := data.Name
+	password := data.Password
 	user := models.FindUserByName(name)
 	if user.Name == "" {
-		c.JSON(http.StatusNotFound, gin.H{
+		c.JSON(http.StatusBadRequest, gin.H{
 			"code":    0,
 			"message": "該用戶不存在",
 		})
