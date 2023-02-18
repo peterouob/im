@@ -17,7 +17,7 @@ import (
 // @Summary 所有用戶
 // @Tags 使用者
 // @Success 200 {string} json{"code","message"}
-// @Router /user/getUserList [get]
+// @Router /user/getUserList [post]
 func GetUserList(c *gin.Context) {
 	data := make([]*models.UserBasic, 10)
 	data = models.GetUserList()
@@ -33,12 +33,24 @@ func GetUserList(c *gin.Context) {
 // @Param password query string false "密碼"
 // @Param repassword query string false "確認密碼"
 // @Success 200 {string} json{"code","message"}
-// @Router /user/createUser [get]
+// @Router /user/createUser [post]
 func CreateUser(c *gin.Context) {
 	user := models.UserBasic{}
-	user.Name = c.Query("name")
-	password := c.Query("password")
-	repassword := c.Query("repassword")
+	//user.Name = c.Query("name")
+	//password := c.Query("password")
+	//repassword := c.Query("repassword")
+	if err := c.ShouldBindJSON(&user); err != nil {
+		fmt.Println(err)
+		return
+	}
+	password := user.Password
+	if user.Name == "" || password == "" {
+		c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"code": -1,
+			"msg":  "please enter your information",
+		})
+		return
+	}
 	salt := fmt.Sprintf("%06d", rand.Int31())
 	//避免mysql 5.7以後的datatime 存在000-000-000 錯誤
 	user.LoginTime = time.Now().UTC()
@@ -50,17 +62,22 @@ func CreateUser(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, map[string]interface{}{
 			"msg": "該用戶已經存在",
 		})
+		fmt.Print("該用戶已經存在")
 		return
 	}
-	if password != repassword {
-		c.JSON(-1, gin.H{"msg": "密碼不一致"})
-		return
-	}
+	//if password != repassword {
+	//	c.JSON(http.StatusBadRequest, gin.H{"msg": "密碼不一致"})
+	//	fmt.Println(password + "        " + repassword)
+	//	return
+	//}
 	//user.Password = password
 	user.Password = utils.MakePassword(password, salt)
 	user.Salt = salt
 	models.CreateUser(user)
-	c.JSON(200, gin.H{"msg": "新增用戶成功"})
+	c.JSON(http.StatusOK, gin.H{
+		"code": 0,
+		"msg":  "success",
+	})
 }
 
 // DeleteUser
@@ -68,10 +85,10 @@ func CreateUser(c *gin.Context) {
 // @Tags 使用者
 // @Param id query string false "ID"
 // @Success 200 {string} json{"code","message"}
-// @Router /user/deleteUser [get]
+// @Router /user/deleteUser [post]
 func DeleteUser(c *gin.Context) {
 	user := models.UserBasic{}
-	id, _ := strconv.Atoi(c.Query("id"))
+	id, _ := strconv.Atoi(c.Request.FormValue("id"))
 	user.ID = uint(id)
 	models.DeleteUser(user)
 	c.JSON(http.StatusOK, gin.H{

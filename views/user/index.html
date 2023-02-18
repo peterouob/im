@@ -63,17 +63,14 @@
             cursor: pointer;
             margin-top: 20px;
         }
-
-        .warning {
-            color: red;
-            margin-top: 20px;
-            text-align: center;
+        a {
+            color: blue;
+            text-decoration: none;
         }
 
-        .success {
-            color: green;
-            margin-top: 20px;
-            text-align: center;
+        a:hover {
+            color: red;
+            text-decoration: underline;
         }
     </style>
 </head>
@@ -92,6 +89,8 @@
             </div>
             <button @click="login" type="button" value="Submit">登入</button>
         </form>
+        <br>
+        <a href="http://localhost/user/createPage">Did not have account?</a>
     </div>
 </div>
 </body>
@@ -114,7 +113,7 @@
                         if(res.status === 200 ){
                             console.log("success")
                             alert("頁面即將跳轉")
-                            location.replace("//127.0.0.1:80/chat/main.html")
+                            location.replace("http://localhost/user/chat")
                         }
                     })
                     .catch(function(error){
